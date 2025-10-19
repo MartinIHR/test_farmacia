@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, useEffect} from 'react';
 import productsData from '../data/products';
 import ProductList from '../components/ProductList';
 import LocationSelector from '../components/LocationSelector';
@@ -10,12 +10,31 @@ export default function Products(){
   const [q, setQ] = useState('');
   const [category, setCategory] = useState('all');
   const [maxPrice, setMaxPrice] = useState(9999);
+  const [products, setProducts] = useState(productsData);
   const actions = useCartActions();
   const prescriptionCtx = usePrescription();
 
-  const categories = useMemo(()=>['all', ...new Set(productsData.map(p=>p.category || 'General'))],[]);
+  useEffect(()=>{
+    let mounted = true;
+    fetch('http://localhost:4000/api/products')
+      .then(r=> r.json())
+      .then(apiProducts => {
+        if(!mounted) return;
+        // merge API products with local data where possible
+        const mapLocal = Object.fromEntries(productsData.map(p=>[p.id, p]));
+        const merged = apiProducts.map(ap => ({ ...mapLocal[ap.id], ...ap }));
+        setProducts(merged);
+      })
+      .catch(()=>{
+        // keep local productsData as fallback
+        setProducts(productsData);
+      });
+    return ()=> mounted = false;
+  },[]);
 
-  const filtered = productsData.filter(p=>{
+  const categories = useMemo(()=>['all', ...new Set(products.map(p=>p.category || 'General'))], [products]);
+
+  const filtered = products.filter(p=>{
     const matchesQ = p.name.toLowerCase().includes(q.toLowerCase()) || (p.description || '').toLowerCase().includes(q.toLowerCase());
     const matchesCat = category === 'all' ? true : (p.category === category);
     const matchesPrice = p.price <= maxPrice;

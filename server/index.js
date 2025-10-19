@@ -5,6 +5,15 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 
+// simple CORS for local development
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 async function getPool(){
   const pool = await mysql.createPool({
     host: process.env.DB_HOST || '127.0.0.1',
