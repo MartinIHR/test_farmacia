@@ -15,16 +15,27 @@ app.use((req, res, next) => {
 });
 
 async function getPool(){
-  const pool = await mysql.createPool({
-    host: process.env.DB_HOST || '127.0.0.1',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || 'root',
-    database: process.env.DB_NAME || 'test_farmacia',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-  });
-  return pool;
+  // defaults match docker-compose.yml for easy local dev
+  const host = process.env.DB_HOST || '127.0.0.1';
+  const user = process.env.DB_USER || 'farm_user';
+  const password = process.env.DB_PASS || 'farm_pass';
+  const database = process.env.DB_NAME || 'test_farmacia';
+
+  try{
+    const pool = await mysql.createPool({
+      host,
+      user,
+      password,
+      database,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
+    return pool;
+  }catch(err){
+    console.error('Failed to create DB pool. Check DB credentials and that MySQL is running.');
+    throw err;
+  }
 }
 
 app.get('/health', (req, res) => res.json({ ok: true }));
@@ -32,8 +43,14 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 app.get('/api/products', async (req, res) => {
   try{
     const pool = await getPool();
-    const [rows] = await pool.query('SELECT id, name, price FROM products LIMIT 50');
-    res.json(rows);
+    const [rows] = await pool.query('SELECT id, name, price, description, image, requiresPrescription, stockByLocation FROM products LIMIT 50');
+    // parse JSON column to object
+    const parsed = rows.map(r => ({
+      ...r,
+      requiresPrescription: Boolean(r.requiresPrescription),
+      stockByLocation: typeof r.stockByLocation === 'string' ? JSON.parse(r.stockByLocation) : r.stockByLocation
+    }));
+    res.json(parsed);
   }catch(e){
     console.error(e);
     res.status(500).json({ error: 'db error' });
