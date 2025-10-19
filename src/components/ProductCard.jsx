@@ -13,7 +13,7 @@ export default function ProductCard({ product, onAdd }) {
         <p className="text-sm text-slate-600 mt-1">{product.description}</p>
         <div className="mt-3 flex items-center justify-between">
           <div>
-            <div className="text-lg font-bold text-slate-800">${product.price.toFixed(2)}</div>
+            <div className="text-lg font-bold text-slate-800">${Number(product.price).toFixed(2)}</div>
             <StoreStockIndicator product={product} />
           </div>
           <button onClick={() => onAdd(product)} className="btn-brand">

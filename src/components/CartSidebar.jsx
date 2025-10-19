@@ -6,7 +6,7 @@ export default function CartSidebar({ open, onClose }) {
   const state = useCart();
   const actions = useCartActions();
 
-  const total = state.items.reduce((s, i) => s + i.price * i.qty, 0);
+  const total = state.items.reduce((s, i) => s + Number(i.price) * i.qty, 0);
 
   return (
     <div className={`fixed top-0 right-0 h-full w-full sm:w-96 transform ${open ? 'translate-x-0' : 'translate-x-full'} transition-transform z-50`}>
@@ -22,7 +22,7 @@ export default function CartSidebar({ open, onClose }) {
               <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
               <div className="flex-1">
                 <div className="font-medium">{item.name}</div>
-                <div className="text-sm text-slate-400">${item.price.toFixed(2)}</div>
+                 <div className="text-sm text-slate-400">${Number(item.price).toFixed(2)}</div>
                 <div className="mt-2 flex items-center gap-2">
                   <button onClick={() => actions.setQty(item.id, item.qty - 1)} className="px-2 bg-slate-700 rounded">-</button>
                   <div className="px-2">{item.qty}</div>
@@ -38,7 +38,7 @@ export default function CartSidebar({ open, onClose }) {
       <div className="p-4 border-t">
         <div className="flex items-center justify-between mb-3">
           <div className="text-slate-400">Total</div>
-          <div className="text-lg font-semibold">${total.toFixed(2)}</div>
+          <div className="text-lg font-semibold">${Number(total).toFixed(2)}</div>
         </div>
         <button className="w-full btn-brand">Pagar</button>
       </div>
