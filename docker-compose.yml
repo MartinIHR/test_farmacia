@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_farmacia
+      MYSQL_USER: farm_user
+      MYSQL_PASSWORD: farm_pass
+    ports:
+      - '3306:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./server/sql:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  db_data:
