@@ -1,3 +1,58 @@
+# test_farmacia
+
+Frontend demo de ecommerce tipo farmacia (React + Vite + Tailwind v4).
+
+Características principales
+- Productos con stock por comuna
+- Subida de recetas y cola de revisión (mock)
+- Selector de ubicación (comuna) y visualización de stock por sucursal
+- Opciones de entrega (pickup / envío) y UI de suscripción (auto-refill)
+- Carrito con persistencia en localStorage y notificaciones (react-hot-toast)
+
+Stack
+- React 19 (Vite)
+- Tailwind CSS v4
+- react-router-dom
+- react-hot-toast
+
+Instalación
+
+1. Clona el repo:
+
+```powershell
+git clone https://github.com/MartinIHR/test_farmacia.git
+cd test_farmacia
+```
+
+2. Instala dependencias:
+
+```powershell
+npm install
+```
+
+3. Arranca el servidor de desarrollo:
+
+```powershell
+npm run dev
+```
+
+Abrir http://localhost:5173/
+
+Notas de desarrollo
+- Las recetas se guardan en localStorage y pasan por una cola de revisión simulada (uploaded → in_review → approved) para demo.
+- Para permitir comprar productos que requieren receta necesitas subir una receta y (por ahora manualmente o por la simulación) esperar a que pase a `approved`.
+
+Próximos pasos sugeridos
+- Asociar recetas a productos desde la UI de subida (marcar productos cubiertos por la receta).
+- Validar en checkout que los productos con receta tienen una receta aprobada asociada.
+- Añadir tests (Vitest) y CI (GitHub Actions).
+- Mejorar accesibilidad y legal (T&C, políticas).
+
+Contribuir
+- Abre un issue o un PR con cambios. Mantén pequeñas ramas por feature.
+
+Licencia
+- (Agregar la licencia que prefieras)
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
