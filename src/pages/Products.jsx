@@ -11,23 +11,33 @@ export default function Products(){
   const [category, setCategory] = useState('all');
   const [maxPrice, setMaxPrice] = useState(9999);
   const [products, setProducts] = useState(productsData);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const actions = useCartActions();
   const prescriptionCtx = usePrescription();
 
   useEffect(()=>{
     let mounted = true;
+    setLoading(true);
+    setError(null);
     fetch('http://localhost:4000/api/products')
-      .then(r=> r.json())
+      .then(r=> {
+        if(!r.ok) throw new Error('Network response was not ok');
+        return r.json();
+      })
       .then(apiProducts => {
         if(!mounted) return;
-        // merge API products with local data where possible
         const mapLocal = Object.fromEntries(productsData.map(p=>[p.id, p]));
         const merged = apiProducts.map(ap => ({ ...mapLocal[ap.id], ...ap }));
         setProducts(merged);
+        setLoading(false);
       })
-      .catch(()=>{
-        // keep local productsData as fallback
+      .catch((err)=>{
+        console.warn('Products API failed, falling back to local data', err);
+        if(!mounted) return;
         setProducts(productsData);
+        setError('No se pudo cargar catálogo desde el servidor. Mostrando versión local.');
+        setLoading(false);
       });
     return ()=> mounted = false;
   },[]);
@@ -77,7 +87,21 @@ export default function Products(){
 
         <section className="flex-1">
           <h1 className="text-2xl font-semibold mb-4">Catálogo</h1>
-            <ProductList products={filtered} onAdd={handleAdd} className="btn-brand" />
+            {loading ? (
+              <div className="p-6 flex items-center justify-center">
+                <div role="status" aria-live="polite">
+                  <svg className="animate-spin h-8 w-8 text-brand" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                </div>
+              </div>
+            ) : (
+              <>
+                {error && <div className="mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-300 text-yellow-700">{error}</div>}
+                <ProductList products={filtered} onAdd={handleAdd} className="btn-brand" />
+              </>
+            )}
         </section>
       </div>
     </main>
