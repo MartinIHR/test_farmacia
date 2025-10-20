@@ -27,10 +27,18 @@ async function getPool(){
       user,
       password,
       database,
+      // ensure utf8mb4 for proper unicode (accents, emojis)
+      charset: 'utf8mb4',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
     });
+    // enforce connection charset
+    try{
+      await pool.query("SET NAMES utf8mb4");
+    }catch(e){
+      console.warn('Could not set connection charset on pool', e);
+    }
     return pool;
   }catch(err){
     console.error('Failed to create DB pool. Check DB credentials and that MySQL is running.');
